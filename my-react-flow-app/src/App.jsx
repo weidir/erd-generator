@@ -124,11 +124,17 @@ function App() {
       <h1>DBML to React Flow Diagram</h1>
 
       {/* Text area for DBML input */}
-      <TextareaAutosize
-        minRows={10}
-        style={{ width: "100%", marginBottom: "20px" }}
-        value={dbml} // Bound to the dbml state
-        onChange={(e) => setDbml(e.target.value)} // Updates state on change
+      <textarea
+        rows={10}
+        style={{
+          width: "100%",
+          height: "auto",
+          overflowY: "scroll",
+          resize: "none",
+          marginBottom: "20px",
+        }}
+        value={dbml}
+        onChange={(e) => setDbml(e.target.value)}
         placeholder="Paste your DBML here"
       />
 
