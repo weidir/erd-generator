@@ -1,6 +1,6 @@
 import { Parser } from "@dbml/core";
 
-export function parseDbml(dbmlContent: string) {
+export function parseDbml(dbmlContent) {
   try {
     // Using the DBML parser to parse the input content
     const parser = new Parser();
