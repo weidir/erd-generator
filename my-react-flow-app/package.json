@@ -17,6 +17,8 @@
     "@mui/styled-engine": "^6.1.4",
     "@types/node": "^22.7.7",
     "@xyflow/react": "^12.3.2",
+    "dagre": "^0.8.5",
+    "polished": "^4.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
