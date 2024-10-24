@@ -21,8 +21,6 @@ import { rgba } from "polished";
 
 // Import custom functions and components
 import { parseDbml } from "./dbmlParser";
-import CustomEdge from "./CustomEdge";
-
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
 import getLayoutedElements from "./getLayout";
 import TableNode from "./TableNode";
