@@ -1,2 +1,2 @@
-# reactflow-practice
-A repository for practicing work with ReactFlow, a JavaScript framework for generating flow diagrams.
+# ERD Generator
+This application creates ERD diagrams using React and [React Flow ]([url](https://reactflow.dev/))
