@@ -1,5 +1,4 @@
-import React, { useCallback, useState } from "react";
-import DbmlFlow from "./dbmlFlow";
+import React, { useCallback, useState, useEffect } from "react";
 import { parseDbml } from "./dbmlParser";
 import { Button, TextareaAutosize } from "@mui/material";
 import {
@@ -10,10 +9,20 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  Handle,
+  Position,
 } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+
+// Remove this
+// import data from "../dbml_json.json";
+// Remove this
 
 function App() {
+  // State for the DBML text input, nodes, and edges
   const [dbml, setDbml] = useState("");
+  let [parsedResponse, setParsedResponsed] = useState("");
+  let [parsedDbml, setParsedDbml] = useState({});
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const onConnect = useCallback(
@@ -21,7 +30,8 @@ function App() {
     [setEdges]
   );
 
-  const handleGenerateDiagram = () => {
+  // Function to generate the diagram from the DBML input
+  const handleGenerateDiagram = async () => {
     // Handle empty inputs
     if (dbml.trim() === "") {
       alert("Please enter valid DBML code!");
@@ -30,98 +40,128 @@ function App() {
 
     // Parse the DBML text into a DBML object
     try {
-      var parsedDbml = parseDbml(dbml); // Parse the DBML text into schema
+      parsedResponse = await parseDbml(dbml); // Parse the DBML text into schema
+      setParsedResponsed(parsedResponse);
       console.log("DBML parsed successfully!");
-      // console.log(parsedDbml); // Log the schema for debugging
     } catch (error) {
       alert("Error parsing DBML. Please check the input format.");
+      return;
     }
-    console.log("Parsed DBML", parsedDbml);
+    console.log("Parsed response", parsedResponse);
 
-    // Generate nodes from tables
+    // Generate an array of nodes
+    // Expected node structure:
+    // {
+    //   id: "table_name",  // Unique identifier for the node
+    //   data: {
+    //     label: <JSX element>,  // JSX element to render in the node
+    //   },
+    //   position: { x: 100 * index, y: 100 * index },  // Position of the node
+    //   style: {
+    //     backgroundColor: "white",  // Background color of the node
+    //     color: "black",  // Text color of the node
+    //     width: "200px",  // Width of the node
+    //     padding: "10px",  // Padding of the node
+    //   }
+    // }
+    let nodes = [];
     try {
-      var nodes = [];
-      const longestFieldLength = parsedDbml.schemas.reduce(
-        (max, schema) =>
-          Math.max(
-            max,
-            ...schema.tables.map((table) =>
-              Math.max(
-                table.name.length,
-                ...table.fields.map((field) => field.name.length)
-              )
-            )
-          ),
-        0
-      );
-      const charWidth = 10; // Approximate width of a character in pixels
-      const padding = 40; // Padding for the node
-      const nodeWidth = Math.max(150, longestFieldLength * charWidth + padding); // Set dynamic width based on content
+      parsedDbml = parsedResponse["parsed_source"];
+      setParsedDbml(parsedDbml);
+      let index = 0;
 
-      for (let schema of parsedDbml.schemas) {
-        nodes.push(
-          ...schema.tables.map((table, index) => ({
-            id: table.name,
-            data: {
-              label: (
-                <div>
-                  <strong>{table.name}</strong>
-                  <br />
-                  <pre>
-                    {table.fields
-                      .map((field) => `${field.name}: ${field.type}`)
-                      .join("\n")}
-                  </pre>
-                </div>
-              ),
-            },
-            position: { x: 100 * index, y: 100 * index }, // Example positioning
-            style: {
-              backgroundColor: "white",
-              color: "black",
-              width: `${nodeWidth}px`,
-              padding: "10px",
-            }, // Set background to blue and text to white
-          }))
-        );
+      for (const table in parsedDbml) {
+        const columns = parsedDbml[table].columns;
+
+        // Map over columns to create JSX elements
+        const columnElements = Object.keys(columns).map((columnKey, index) => {
+          const column = columns[columnKey];
+
+          return (
+            <div
+              key={index}
+              style={{
+                position: "relative",
+                outline: "2px black solid",
+              }}
+            >
+              {/* Field details */}
+              {column.name}: {column.type.toLowerCase()}{" "}
+              {column.primary_key ? "(PK)" : ""}
+            </div>
+          );
+        });
+
+        const node = {
+          id: table,
+          data: {
+            label: (
+              <div style={{ position: "relative" }}>
+                <strong>{table}</strong>
+                <br />
+                <pre>{columnElements}</pre>
+              </div>
+            ),
+          },
+          position: { x: 100 * index, y: 100 * index }, // Example positioning
+          style: {
+            backgroundColor: "white",
+            color: "black",
+            width: "200px",
+            padding: "10px",
+          },
+        };
+        nodes.push(node);
+        index++;
       }
     } catch (error) {
-      alert("Error generating nodes. Please check the input format.", error);
-      console.log(
-        "Error generating nodes. Please check the input format.",
-        error
-      );
+      alert("Error generating nodes");
+      console.error("Error generating nodes.", error);
     }
 
-    // Generate edges from references (relationships)
+    // Generate an array of edges
+    // Expected edge structure:
+    // {
+    //   id: 'edge-self',
+    //   source: 'self-1',
+    //   target: 'self-1',
+    //   type: 'selfconnecting',
+    //   markerEnd: { type: MarkerType.Arrow },
+    // },
+    let edges = [];
+    let columnEdges = [];
     try {
-      var edges = [];
-      for (let schema of parsedDbml.schemas) {
-        edges.push(
-          ...schema.refs.map((ref) => ({
-            id: `${ref.endpoints[0].tableName}-${ref.endpoints[1].tableName}`,
-            source: ref.endpoints[0].tableName,
-            target: ref.endpoints[1].tableName,
-          }))
-        );
+      for (const table in parsedDbml) {
+        const refs = parsedDbml[table].refs;
+
+        // Map over references to create edges
+        for (const ref of refs) {
+          const edge = {
+            id: `${table}-${ref}`,
+            source: table,
+            target: ref,
+            type: "smoothstep",
+            animated: false,
+            arrowHeadType: "arrowclosed",
+          };
+          edges.push(edge);
+        }
       }
     } catch (error) {
-      alert("Error generating edges. Please check the input format.", error);
-      console.log(
-        "Error generating edges. Please check the input format.",
-        error
-      );
+      alert("Error generating edges");
+      console.error("Error generating edges.", error);
     }
+
     console.log("Nodes:", nodes);
     console.log("Edges:", edges);
 
-    setNodes(nodes); // Set the nodes state for rendering
-    setEdges(edges); // Set the edges state for rendering
+    setNodes(nodes);
+    setEdges(edges);
   };
 
   return (
     <div style={{ padding: "20px", width: "80vw", height: "80vh" }}>
-      <h1>DBML to React Flow Diagram</h1>
+      <h1>DBML to ERD Diagram</h1>
 
       {/* Text area for DBML input */}
       <textarea
@@ -155,9 +195,10 @@ function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        fitView
       >
-        <Controls />
-        <MiniMap />
+        {/* <Controls />
+        <MiniMap /> */}
         <Background variant="dots" gap={12} size={1} />
       </ReactFlow>
     </div>
