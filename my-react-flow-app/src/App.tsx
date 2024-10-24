@@ -13,11 +13,9 @@ import {
   useEdgesState,
   OnConnect,
   addEdge,
-  MarkerType,
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { rgba } from "polished";
 
 // Import custom functions and components
 import { parseDbml } from "./dbmlParser";
@@ -30,7 +28,6 @@ function App() {
   // State for the DBML text input, nodes, and edges
   const [dbml, setDbml] = useState("");
   let [parsedResponse, setParsedResponsed] = useState("");
-  let [parsedDbml, setParsedDbml] = useState({});
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const onConnect: OnConnect = useCallback(
