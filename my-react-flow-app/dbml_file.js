@@ -113,7 +113,6 @@ Table sales.vehicle_transaction_fact {
 
   Note: 'The vehicle_transaction_fact table is a fact table that captures each transaction event in a vehicle lifecycle.'
 }
-
 `;
 
 
