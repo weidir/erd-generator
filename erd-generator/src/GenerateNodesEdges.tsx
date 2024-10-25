@@ -1,16 +1,13 @@
 import React from "react";
 import { rgba } from "polished";
 import { Edge, Node, Position, MarkerType } from "@xyflow/react";
-import { parseDbml } from "./dbmlParser";
 
-const GenerateNodesEdges = (parsedResponse: any) => {
+const GenerateNodesEdges = (parsedDbml: any) => {
   let nodes: Node[] = [];
   let edges: Edge[] = [];
-  let parsedDbml: any = {};
 
   // Try generating nodes and edges from the parsed DBML
   try {
-    parsedDbml = parsedResponse["parsed_source"];
     let index = 0;
 
     // Loop through each table in the parsed DBML
