@@ -110,63 +110,6 @@ function App() {
     <div style={{ padding: "20px", width: "80vw", height: "80vh" }}>
       <h1>DBML to ERD Diagram</h1>
 
-      <svg style={{ position: "absolute", top: 0, left: 0 }}>
-        <defs>
-          <marker id="one-marker">
-            <line
-              x1="10"
-              y1="25"
-              x2="80"
-              y2="25"
-              stroke="black"
-              strokeWidth="2"
-            />
-            <line
-              x1="80"
-              y1="15"
-              x2="80"
-              y2="35"
-              stroke="black"
-              strokeWidth="2"
-            />
-          </marker>
-          <marker id="many-marker">
-            <line
-              x1="10"
-              y1="25"
-              x2="70"
-              y2="25"
-              stroke="black"
-              strokeWidth="2"
-            />
-            <line
-              x1="70"
-              y1="25"
-              x2="90"
-              y2="10"
-              stroke="black"
-              strokeWidth="2"
-            />
-            <line
-              x1="70"
-              y1="25"
-              x2="90"
-              y2="25"
-              stroke="black"
-              strokeWidth="2"
-            />
-            <line
-              x1="70"
-              y1="25"
-              x2="90"
-              y2="40"
-              stroke="black"
-              strokeWidth="2"
-            />
-          </marker>
-        </defs>
-      </svg>
-
       {/* Text area for DBML input */}
       <textarea
         rows={10}
@@ -212,6 +155,83 @@ function App() {
         <MiniMap />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
+
+      <svg style={{ position: "absolute", top: 0, left: 0 }}>
+        <defs>
+          <marker
+            id="one-marker"
+            markerWidth="20"
+            markerHeight="20"
+            refX="8"
+            refY="10"
+            orient="auto"
+          >
+            {/* <!-- Horizontal line leading to the single bar --> */}
+            <line
+              x1="0"
+              y1="10"
+              x2="15"
+              y2="10"
+              stroke="white"
+              strokeWidth="1"
+            />
+            {/* <!-- Single vertical bar to represent "one" --> */}
+            <line
+              x1="15"
+              y1="3"
+              x2="15"
+              y2="17"
+              stroke="white"
+              strokeWidth="1"
+            />
+          </marker>
+          <marker
+            id="many-marker"
+            markerWidth="50"
+            markerHeight="50"
+            refX="35"
+            refY="25"
+            orient="auto"
+          >
+            {/* <!-- Horizontal line leading to the crow's foot --> */}
+            <line
+              x1="0"
+              y1="25"
+              x2="20"
+              y2="25"
+              stroke="white"
+              strokeWidth="1"
+            />
+            {/* <!-- First prong of the crow's foot --> */}
+            <line
+              x1="20"
+              y1="25"
+              x2="40"
+              y2="10"
+              stroke="white"
+              strokeWidth="1"
+            />
+            {/* <!-- Second prong of the crow's foot (center) --> */}
+            <line
+              x1="20"
+              y1="25"
+              x2="40"
+              y2="25"
+              stroke="white"
+              strokeWidth="1"
+            />
+            {/* <!-- Third prong of the crow's foot --> */}
+            <line
+              x1="20"
+              y1="25"
+              x2="40"
+              y2="40"
+              stroke="white"
+              strokeWidth="1"
+            />
+          </marker>
+        </defs>
+      </svg>
     </div>
   );
 }

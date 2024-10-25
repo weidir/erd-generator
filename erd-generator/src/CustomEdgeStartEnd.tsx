@@ -2,6 +2,7 @@ import React, { type FC } from "react";
 import {
   getSmoothStepPath,
   EdgeLabelRenderer,
+  EdgeMarker,
   BaseEdge,
   type Edge,
   type EdgeProps,
@@ -57,8 +58,8 @@ const CustomEdgeStartEnd: FC<
 
   const markerStart = data?.markerStart?.type;
   const markerEnd = data?.markerEnd?.type;
-  console.log("markerStart", markerStart);
-  console.log("markerEnd", markerEnd);
+  console.log("markerStart", `url(#${markerStart})`);
+  console.log("markerEnd", `url(#${markerEnd})`);
 
   return (
     <>
