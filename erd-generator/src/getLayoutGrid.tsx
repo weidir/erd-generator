@@ -3,7 +3,7 @@ import { Node, Edge, Position } from "@xyflow/react";
 const nodeWidth = 300;
 const nodeHeight = 400;
 
-const getLayoutedElements = (nodes: Node[]) => {
+const getGridLayoutedElements = (nodes: Node[]) => {
   const size = nodes.length;
 
   // Calculate the number of rows and columns
@@ -27,4 +27,4 @@ const getLayoutedElements = (nodes: Node[]) => {
   return newNodes;
 };
 
-export default getLayoutedElements;
+export default getGridLayoutedElements;

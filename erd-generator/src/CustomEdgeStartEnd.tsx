@@ -55,24 +55,29 @@ const CustomEdgeStartEnd: FC<
     targetPosition,
   });
 
+  const markerStart = data?.markerStart?.type;
+  const markerEnd = data?.markerEnd?.type;
+  console.log("markerStart", markerStart);
+  console.log("markerEnd", markerEnd);
+
   return (
     <>
       <BaseEdge
         id={id}
         path={edgePath}
-        // markerStart={data?.markerStart.type}
-        // markerEnd={data?.markerEnd.type}
+        markerStart={`url(#${markerStart})`}
+        markerEnd={`url(#${markerEnd})`}
       />
       <EdgeLabelRenderer>
         {data?.startLabel && (
           <EdgeLabel
-            transform={`translate(-50%, 0%) translate(${sourceX}px,${sourceY}px)`}
+            transform={`translate(${sourceX}px,${sourceY - 40}px)`}
             label={data.startLabel}
           />
         )}
         {data?.endLabel && (
           <EdgeLabel
-            transform={`translate(-50%, -100%) translate(${targetX}px,${targetY}px)`}
+            transform={`translate(${targetX - 30}px,${targetY - 40}px)`}
             label={data.endLabel}
           />
         )}
