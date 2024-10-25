@@ -7,7 +7,6 @@ import {
   type Node,
   Controls,
   MiniMap,
-  Panel,
   ReactFlow,
   Background,
   useNodesState,
@@ -36,8 +35,6 @@ function App() {
   let [parsedDbml, setParsedDbml] = useState("");
   let [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  let [tableNodes, setTableNodes, onTableNodesChange] = useNodesState<Node>([]);
-  let [tableEdges, setTableEdges, onTableEdgesChange] = useEdgesState<Edge>([]);
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
@@ -102,9 +99,11 @@ function App() {
       nodes
     ));
 
-    // Combine the table and column nodes and edges
+    // Combine the table and column nodes
     nodes = [...nodes, ...columnNodes];
 
+    // Set the nodes and edges in the diagram
+    // Set the edges to only the column edges
     setNodes(nodes);
     setEdges(columnEdges);
   };
