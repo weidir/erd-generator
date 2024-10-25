@@ -17,23 +17,25 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
       const xPosition = 350 * index;
       const yPosition = 50 * index;
 
+      const numColumns = Object.keys(parsedDbml[tableName].columns).length;
+
       // Generate nodes for each table and push them to the nodes array
       const tableNode = {
         id: tableName,
         data: {
           label: (
             <>
-              <Handle
+              {/* <Handle
                 type="target"
                 position={Position.Left}
                 isConnectable={true}
-              />
+              /> */}
               {tableName}
-              <Handle
+              {/* <Handle
                 type="source"
                 position={Position.Right}
                 isConnectable={true}
-              />
+              /> */}
             </>
           ),
         },
@@ -42,7 +44,7 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
           backgroundColor: rgba(39, 168, 245, 0.43),
           color: "white",
           width: "300px",
-          height: "400px",
+          height: `${numColumns * 40}px`, // # columns * 40px
           padding: "10px",
           outline: "3px white solid",
         },
@@ -129,10 +131,7 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
   return { nodes, edges };
 };
 
-export const GenerateColumnNodesEdges = (
-  parsedDbml: any,
-  tableNodes: Node[]
-) => {
+export const GenerateColumnNodesEdges = (parsedDbml: any) => {
   let nodes: any[] = [];
   let edges: any[] = [];
 
@@ -174,6 +173,7 @@ export const GenerateColumnNodesEdges = (
             backgroundColor: "white",
             color: "black",
             width: "300px",
+            height: "40px",
             padding: "10px",
           },
           parentId: tableName,
@@ -229,16 +229,10 @@ export const GenerateColumnNodesEdges = (
                 startLabel: startLabel,
                 endLabel: endLabel,
                 markerStart: {
-                  type: MarkerType.ArrowClosed,
-                  width: 20,
-                  height: 20,
-                  color: "#FF0072",
+                  type: markerStart,
                 },
                 markerEnd: {
-                  type: MarkerType.ArrowClosed,
-                  width: 20,
-                  height: 20,
-                  color: "#FF0072",
+                  type: markerEnd,
                 },
               },
             };
