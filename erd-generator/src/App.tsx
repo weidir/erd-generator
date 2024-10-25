@@ -8,6 +8,7 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
+  Panel,
   Background,
   useNodesState,
   useEdgesState,
@@ -20,7 +21,9 @@ import "@xyflow/react/dist/style.css";
 // Import custom functions and components
 import { parseDbml } from "./dbmlParser";
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
-import getLayoutedElements from "./getLayout";
+import getGridLayoutedElements from "./getLayoutGrid";
+import getDagreLayoutedElements from "./getLayoutDagre";
+import getElkLayoutedElements from "./getLayoutElk";
 import TableNode from "./TableNode";
 import {
   GenerateTableNodesEdges,
@@ -38,17 +41,6 @@ function App() {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
-  // const onLayout = useCallback(
-  //   (direction: string) => {
-  //     const { nodes: layoutedNodes, edges: layoutedEdges } =
-  //       getLayoutedElements(nodes, edges, direction);
-  //     console.log("Layouted nodes:", layoutedNodes);
-  //     console.log("Layouted edges:", layoutedEdges);
-  //     setNodes([...layoutedNodes]);
-  //     setEdges([...layoutedEdges]);
-  //   },
-  //   [nodes, edges]
-  // );
 
   // Define custom node types for tables
   const nodeTypes = {
@@ -87,16 +79,18 @@ function App() {
     console.log("Table edges:", edges);
 
     // Get the proper layout for the nodes
+    // nodes = getGridLayoutedElements(nodes);
     // ({ nodes, edges } = getDagreLayoutedElements(nodes, edges));
-    nodes = getLayoutedElements(nodes);
+    const layoutedNodes = await getElkLayoutedElements(nodes, edges);
+    nodes = layoutedNodes;
+    console.log("Layouted nodes:", nodes);
+    console.log("Layouted edges:", edges);
 
     // Generate nodes and edges for each column
     let columnNodes: Node[] = [];
     let columnEdges: Edge[] = [];
-    ({ nodes: columnNodes, edges: columnEdges } = GenerateColumnNodesEdges(
-      parsedDbml,
-      nodes
-    ));
+    ({ nodes: columnNodes, edges: columnEdges } =
+      GenerateColumnNodesEdges(parsedDbml));
 
     // Combine the table and column nodes
     nodes = [...nodes, ...columnNodes];
@@ -110,31 +104,6 @@ function App() {
   return (
     <div style={{ padding: "20px", width: "80vw", height: "80vh" }}>
       <h1>DBML to ERD Diagram</h1>
-
-      {/* Text area for DBML input */}
-      <textarea
-        rows={10}
-        style={{
-          width: "100%",
-          height: "auto",
-          overflowY: "scroll",
-          resize: "none",
-          marginBottom: "20px",
-        }}
-        value={dbml}
-        onChange={(e) => setDbml(e.target.value)}
-        placeholder="Paste your DBML here"
-      />
-
-      {/* Button to generate the diagram */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleGenerateDiagram}
-        style={{ marginBottom: "20px" }}
-      >
-        Generate Diagram
-      </Button>
 
       <svg style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
@@ -192,6 +161,31 @@ function App() {
           </marker>
         </defs>
       </svg>
+
+      {/* Text area for DBML input */}
+      <textarea
+        rows={10}
+        style={{
+          width: "100%",
+          height: "auto",
+          overflowY: "scroll",
+          resize: "none",
+          marginBottom: "20px",
+        }}
+        value={dbml}
+        onChange={(e) => setDbml(e.target.value)}
+        placeholder="Paste your DBML here"
+      />
+
+      {/* Button to generate the diagram */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleGenerateDiagram}
+        style={{ marginBottom: "20px" }}
+      >
+        Generate Diagram
+      </Button>
 
       {/* Render the diagram */}
       <ReactFlow
