@@ -1,13 +1,13 @@
-function escapeDoubleQuotes(input: string) {
-  // Escape all double quotes in the input
-  const escapedInput = input.replace(/"/g, '\\"');
+function replaceDoubleQuotes(input: string) {
+  // Replace all double quotes with single quotes
+  const escapedInput = input.replace(/"/g, "'");
   return escapedInput;
 }
 
 // Define a function to send the DBML content to the server and get a JSON string in response
-export async function parseDbml(dbmlString: string) {
+export async function parseDbml(dbmlString: string): Promise<any> {
   // Escape double quotes in the DBML string
-  const escapedDbmlString = escapeDoubleQuotes(dbmlString);
+  const escapedDbmlString = replaceDoubleQuotes(dbmlString);
 
   // Create the expected JSON object for the endpoint
   const dbmlObject = {

@@ -1,40 +1,30 @@
-import dagre from "dagre";
-import { Node, Position } from "@xyflow/react";
+import { Node, Edge, Position } from "@xyflow/react";
 
-const nodeWidth = 172;
-const nodeHeight = 36;
+const nodeWidth = 300;
+const nodeHeight = 400;
 
-const getLayoutedElements = (nodes: Node[], direction = "TB") => {
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-  const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction });
+const getLayoutedElements = (nodes: Node[]) => {
+  const size = nodes.length;
 
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
+  // Calculate the number of rows and columns
+  const rows = Math.ceil(Math.sqrt(size));
+  const cols = Math.ceil(size / rows);
+  console.log("Rows:", rows, "Cols:", cols);
 
-  dagreGraph.nodes().forEach((node) => {
-    dagreGraph.setNode(node, { width: nodeWidth, height: nodeHeight });
-  });
+  // Calculate the positions of each node
+  // Spread the nodes out in a grid with spacing between them
+  const newNodes = nodes.map((node, index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+    const x = col * nodeWidth + 50 * col;
+    const y = row * nodeHeight + 50 * row;
 
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+    return {
+      ...node,
+      position: { x, y },
     };
-
-    return node;
   });
-
-  return nodes;
+  return newNodes;
 };
 
 export default getLayoutedElements;

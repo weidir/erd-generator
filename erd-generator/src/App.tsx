@@ -7,6 +7,7 @@ import {
   type Node,
   Controls,
   MiniMap,
+  Panel,
   ReactFlow,
   Background,
   useNodesState,
@@ -21,19 +22,37 @@ import "@xyflow/react/dist/style.css";
 import { parseDbml } from "./dbmlParser";
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
 import getLayoutedElements from "./getLayout";
+import getDagreLayoutedElements from "./getLayoutDagre";
 import TableNode from "./TableNode";
-import GenerateNodesEdges from "./GenerateNodesEdges";
+import {
+  GenerateTableNodesEdges,
+  GenerateColumnNodesEdges,
+} from "./GenerateNodesEdges";
 
 function App() {
   // State for the DBML text input, nodes, and edges
   const [dbml, setDbml] = useState("");
   let [parsedResponse, setParsedResponsed] = useState("");
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  let [parsedDbml, setParsedDbml] = useState("");
+  let [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  let [tableNodes, setTableNodes, onTableNodesChange] = useNodesState<Node>([]);
+  let [tableEdges, setTableEdges, onTableEdgesChange] = useEdgesState<Edge>([]);
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+  // const onLayout = useCallback(
+  //   (direction: string) => {
+  //     const { nodes: layoutedNodes, edges: layoutedEdges } =
+  //       getLayoutedElements(nodes, edges, direction);
+  //     console.log("Layouted nodes:", layoutedNodes);
+  //     console.log("Layouted edges:", layoutedEdges);
+  //     setNodes([...layoutedNodes]);
+  //     setEdges([...layoutedEdges]);
+  //   },
+  //   [nodes, edges]
+  // );
 
   // Define custom node types for tables
   const nodeTypes = {
@@ -56,28 +75,38 @@ function App() {
     try {
       parsedResponse = await parseDbml(dbml); // Parse the DBML text into schema
       setParsedResponsed(parsedResponse);
+      parsedDbml = parsedResponse["parsed_source"];
+      setParsedDbml(parsedDbml);
       console.log("DBML parsed successfully!");
     } catch (error) {
       alert("Error parsing DBML. Please check the input format.");
       return;
     }
-    console.log("Parsed response", parsedResponse);
+    console.log("Parsed response", parsedDbml);
 
     // Generate nodes and edges from the parsed DBML
-    let { nodes, edges } = GenerateNodesEdges(parsedResponse);
+    ({ nodes, edges } = GenerateTableNodesEdges(parsedDbml));
 
-    console.log("Nodes:", nodes);
-    console.log("Edges:", edges);
+    console.log("Table nodes:", nodes);
+    console.log("Table edges:", edges);
 
-    // NEED TO IMPLEMENT THIS //
-    // @Isabel
     // Get the proper layout for the nodes
-    // nodes = getLayoutedElements(nodes);
-    // console.log("Layouted nodes:", nodes);
-    // NEED TO IMPLEMENT THIS //
+    // ({ nodes, edges } = getDagreLayoutedElements(nodes, edges));
+    nodes = getLayoutedElements(nodes);
+
+    // Generate nodes and edges for each column
+    let columnNodes: Node[] = [];
+    let columnEdges: Edge[] = [];
+    ({ nodes: columnNodes, edges: columnEdges } = GenerateColumnNodesEdges(
+      parsedDbml,
+      nodes
+    ));
+
+    // Combine the table and column nodes and edges
+    nodes = [...nodes, ...columnNodes];
 
     setNodes(nodes);
-    setEdges(edges);
+    setEdges(columnEdges);
   };
 
   return (
@@ -177,6 +206,10 @@ function App() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
       >
+        {/* <Panel position="top-right">
+          <button onClick={() => onLayout("TB")}>vertical layout</button>
+          <button onClick={() => onLayout("LR")}>horizontal layout</button>
+        </Panel> */}
         {/* Make the controls all black with white text */}
         <Controls
           style={{
