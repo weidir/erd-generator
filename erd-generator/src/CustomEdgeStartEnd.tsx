@@ -60,8 +60,8 @@ const CustomEdgeStartEnd: FC<
       <BaseEdge
         id={id}
         path={edgePath}
-        // markerStart={data?.markerStart.type}
-        // markerEnd={data?.markerEnd.type}
+        markerStart={data?.markerStart.type}
+        markerEnd={data?.markerEnd.type}
       />
       <EdgeLabelRenderer>
         {data?.startLabel && (
