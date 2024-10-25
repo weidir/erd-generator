@@ -21,7 +21,6 @@ import "@xyflow/react/dist/style.css";
 import { parseDbml } from "./dbmlParser";
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
 import getLayoutedElements from "./getLayout";
-import getDagreLayoutedElements from "./getLayoutDagre";
 import TableNode from "./TableNode";
 import {
   GenerateTableNodesEdges,
@@ -205,10 +204,6 @@ function App() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
       >
-        {/* <Panel position="top-right">
-          <button onClick={() => onLayout("TB")}>vertical layout</button>
-          <button onClick={() => onLayout("LR")}>horizontal layout</button>
-        </Panel> */}
         {/* Make the controls all black with white text */}
         <Controls
           style={{
