@@ -37,6 +37,8 @@ function App() {
   let [parsedDbml, setParsedDbml] = useState("");
   let [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  let sources: string[] = [];
+  let targets: string[] = [];
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
@@ -73,7 +75,7 @@ function App() {
     console.log("Parsed response", parsedDbml);
 
     // Generate nodes and edges from the parsed DBML
-    ({ nodes, edges } = GenerateTableNodesEdges(parsedDbml));
+    ({ nodes, edges, sources, targets } = GenerateTableNodesEdges(parsedDbml));
 
     console.log("Table nodes:", nodes);
     console.log("Table edges:", edges);
@@ -89,8 +91,11 @@ function App() {
     // Generate nodes and edges for each column
     let columnNodes: Node[] = [];
     let columnEdges: Edge[] = [];
-    ({ nodes: columnNodes, edges: columnEdges } =
-      GenerateColumnNodesEdges(parsedDbml));
+    ({ nodes: columnNodes, edges: columnEdges } = GenerateColumnNodesEdges(
+      parsedDbml,
+      sources,
+      targets
+    ));
 
     // Combine the table and column nodes
     nodes = [...nodes, ...columnNodes];
