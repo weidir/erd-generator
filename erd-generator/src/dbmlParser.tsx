@@ -5,7 +5,7 @@ function replaceDoubleQuotes(input: string) {
 }
 
 // Define a function to send the DBML content to the server and get a JSON string in response
-export async function parseDbml(dbmlString: string) {
+export async function parseDbml(dbmlString: string): Promise<any> {
   // Escape double quotes in the DBML string
   const escapedDbmlString = replaceDoubleQuotes(dbmlString);
 
