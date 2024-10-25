@@ -21,9 +21,13 @@ import "@xyflow/react/dist/style.css";
 // Import custom functions and components
 import { parseDbml } from "./dbmlParser";
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
-import getLayoutedElements from "./getLayoutDagre";
+import getLayoutedElements from "./getLayout";
+import getDagreLayoutedElements from "./getLayoutDagre";
 import TableNode from "./TableNode";
-import GenerateTableNodesEdges from "./GenerateNodesEdges";
+import {
+  GenerateTableNodesEdges,
+  GenerateColumnNodesEdges,
+} from "./GenerateNodesEdges";
 
 function App() {
   // State for the DBML text input, nodes, and edges
@@ -86,15 +90,23 @@ function App() {
     console.log("Table nodes:", nodes);
     console.log("Table edges:", edges);
 
-    // NEED TO IMPLEMENT THIS //
-    // @Isabel
     // Get the proper layout for the nodes
-    ({ nodes, edges } = getLayoutedElements(nodes, edges));
-    // console.log("Layouted nodes:", nodes);
-    // NEED TO IMPLEMENT THIS //
+    // ({ nodes, edges } = getDagreLayoutedElements(nodes, edges));
+    nodes = getLayoutedElements(nodes);
+
+    // Generate nodes and edges for each column
+    let columnNodes: Node[] = [];
+    let columnEdges: Edge[] = [];
+    ({ nodes: columnNodes, edges: columnEdges } = GenerateColumnNodesEdges(
+      parsedDbml,
+      nodes
+    ));
+
+    // Combine the table and column nodes and edges
+    nodes = [...nodes, ...columnNodes];
 
     setNodes(nodes);
-    setEdges(edges);
+    setEdges(columnEdges);
   };
 
   return (
