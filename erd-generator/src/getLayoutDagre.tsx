@@ -6,7 +6,7 @@ const nodeHeight = 400;
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-const getLayoutedElements = (
+const getDagreLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
   direction: string = "TB"
@@ -26,7 +26,6 @@ const getLayoutedElements = (
 
   const newNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    console.log("Node with position:", nodeWithPosition);
     const newNode = {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,
@@ -45,4 +44,4 @@ const getLayoutedElements = (
   return { nodes: newNodes, edges };
 };
 
-export default getLayoutedElements;
+export default getDagreLayoutedElements;
