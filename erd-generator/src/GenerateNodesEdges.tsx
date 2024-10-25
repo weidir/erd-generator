@@ -6,6 +6,8 @@ import getLayoutedElements from "./getLayoutDagre";
 export const GenerateTableNodesEdges = (parsedDbml: any) => {
   let nodes: any[] = [];
   let edges: any[] = [];
+  let sources: string[] = [];
+  let targets: string[] = [];
 
   // Try generating nodes and edges from the parsed DBML
   try {
@@ -23,28 +25,14 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
       const tableNode = {
         id: tableName,
         data: {
-          label: (
-            <>
-              {/* <Handle
-                type="target"
-                position={Position.Left}
-                isConnectable={true}
-              /> */}
-              {tableName}
-              {/* <Handle
-                type="source"
-                position={Position.Right}
-                isConnectable={true}
-              /> */}
-            </>
-          ),
+          label: tableName,
         },
         position: { x: xPosition, y: yPosition },
         style: {
           backgroundColor: rgba(39, 168, 245, 0.43),
           color: "white",
           width: "300px",
-          height: `${numColumns * 40}px`, // # columns * 40px
+          height: `${numColumns * 40 + 40}px`, // # columns * 40px
           padding: "10px",
           outline: "3px white solid",
         },
@@ -104,19 +92,15 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
                 endLabel: endLabel,
                 markerStart: {
                   type: markerStart,
-                  width: 20,
-                  height: 20,
-                  color: "#FF0072",
                 },
                 markerEnd: {
                   type: markerEnd,
-                  width: 20,
-                  height: 20,
-                  color: "#FF0072",
                 },
               },
             };
             edges.push(tableEdge);
+            sources.push(`${tableName}.${columnName}`);
+            targets.push(ref.column_name);
           }
         }
       }
@@ -128,12 +112,19 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
   }
   console.log("Nodes:", nodes);
   console.log("Edges:", edges);
-  return { nodes, edges };
+  return { nodes, edges, sources, targets };
 };
 
-export const GenerateColumnNodesEdges = (parsedDbml: any) => {
+export const GenerateColumnNodesEdges = (
+  parsedDbml: any,
+  sources: string[],
+  targets: string[]
+) => {
   let nodes: any[] = [];
   let edges: any[] = [];
+
+  console.log("Sources:", sources);
+  console.log("Targets:", targets);
 
   // Try generating nodes and edges from the parsed DBML
   try {
@@ -142,46 +133,12 @@ export const GenerateColumnNodesEdges = (parsedDbml: any) => {
     // Loop through each table in the parsed DBML
     for (const tableName in parsedDbml) {
       // Loop through each column in the given table
-      let yColPosition = 40;
+      let yColPosition = 0;
+
       for (const columnName in parsedDbml[tableName].columns) {
         // Get the column object
         const column = parsedDbml[tableName].columns[columnName];
 
-        // Set the initial x and y position for each table
-        const xPosition = 350 * index;
-        const yPosition = 50 * index;
-
-        // Create a node for each column and push it to the nodes array
-        const columnNode = {
-          id: `${tableName}.${columnName}`,
-          data: {
-            label: (
-              <div
-                key={columnName}
-                style={{
-                  position: "relative",
-                }}
-              >
-                {/* Field details */}
-                {columnName}: {column.type.toLowerCase()}{" "}
-                {column.primary_key ? "(PK)" : ""}
-              </div>
-            ),
-          },
-          position: { x: xPosition, y: yColPosition },
-          style: {
-            backgroundColor: "white",
-            color: "black",
-            width: "300px",
-            height: "40px",
-            padding: "10px",
-          },
-          parentId: tableName,
-          extent: "parent" as const,
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
-        };
-        nodes.push(columnNode);
         yColPosition += 40;
 
         // Set edges for each column, if there are refs in the column, create edges
@@ -239,6 +196,44 @@ export const GenerateColumnNodesEdges = (parsedDbml: any) => {
             edges.push(edge);
           }
         }
+        // Set the initial x and y position for each table
+        const xPosition = 350 * index;
+        const yPosition = 50 * index;
+
+        // Create a node for each column and push it to the nodes array
+        const columnNode = {
+          id: `${tableName}.${columnName}`,
+          data: {
+            label: (
+              // Add handles to the column node if it has an edge
+              <div key={columnName}>
+                {sources.includes(`${tableName}.${columnName}`) && (
+                  <Handle type="source" position={Position.Right} />
+                )}
+                {targets.includes(`${tableName}.${columnName}`) && (
+                  <Handle type="target" position={Position.Left} />
+                )}
+                {/* Field details */}
+                {columnName}: {column.type.toLowerCase()}{" "}
+                {column.primary_key ? "(PK)" : ""}
+              </div>
+            ),
+          },
+          position: { x: xPosition, y: yColPosition },
+          style: {
+            backgroundColor: "white",
+            color: "black",
+            width: "300px",
+            height: "40px",
+            padding: "10px",
+          },
+          parentId: tableName,
+          extent: "parent" as const,
+          // sourcePosition: Position.Right,
+          // targetPosition: Position.Left,
+          type: "tableNode",
+        };
+        nodes.push(columnNode);
       }
       index++;
     }
