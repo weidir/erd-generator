@@ -1,6 +1,6 @@
 // Import third-party libraries
-import React, { useCallback, useState } from "react";
-import ReactTooltip from "react-tooltip";
+import React, { useCallback, useState, useEffect } from "react";
+import { Tooltip } from "react-tooltip";
 import { Button } from "@mui/material";
 import {
   type EdgeTypes,
@@ -20,12 +20,15 @@ import {
 import "@xyflow/react/dist/style.css";
 
 // Import custom functions and components
+import "./App.css";
+import "./index.css";
 import { parseDbml } from "./dbmlParser";
 import CustomEdgeStartEnd from "./CustomEdgeStartEnd";
 import getGridLayoutedElements from "./getLayoutGrid";
 import getDagreLayoutedElements from "./getLayoutDagre";
 import getElkLayoutedElements from "./getLayoutElk";
 import TableNode from "./TableNode";
+import ColumnNode from "./ColumnNode";
 import {
   GenerateTableNodesEdges,
   GenerateColumnNodesEdges,
@@ -45,14 +48,61 @@ function App() {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+  // Add event listeners to highlight nodes on mouseover
+  useEffect(() => {
+    const handleMouseOver = (event: MouseEvent) => {
+      let target = event.target as HTMLElement;
+      while (
+        target &&
+        !target.classList.contains("react-flow__node-columnNode") &&
+        !target.classList.contains("react-flow__node-tableNode")
+      ) {
+        target = target.parentElement as HTMLElement;
+      }
+      if (target) {
+        if (target.classList.contains("react-flow__node-columnNode")) {
+          target.style.backgroundColor = "#4B4C52";
+        } else if (target.classList.contains("react-flow__node-tableNode")) {
+          target.style.outline = "2px solid #6E9AC8";
+        }
+      }
+    };
+
+    const handleMouseOut = (event: MouseEvent) => {
+      let target = event.target as HTMLElement;
+      while (
+        target &&
+        !target.classList.contains("react-flow__node-columnNode") &&
+        !target.classList.contains("react-flow__node-tableNode")
+      ) {
+        target = target.parentElement as HTMLElement;
+      }
+      if (target) {
+        if (target.classList.contains("react-flow__node-columnNode")) {
+          target.style.backgroundColor = "rgba(55, 56, 63, 0.8)";
+        } else if (target.classList.contains("react-flow__node-tableNode")) {
+          target.style.outline = "none";
+        }
+      }
+    };
+
+    document.addEventListener("mouseover", handleMouseOver);
+    document.addEventListener("mouseout", handleMouseOut);
+
+    return () => {
+      document.removeEventListener("mouseover", handleMouseOver);
+      document.removeEventListener("mouseout", handleMouseOut);
+    };
+  }, []);
 
   // Define custom node types for tables
   const nodeTypes = {
     tableNode: TableNode,
+    columnNode: ColumnNode,
   };
   // Define custom edge types that support labels and markers at the start and end
   const edgeTypes: EdgeTypes = {
-    "start-end": CustomEdgeStartEnd,
+    "custom-start-end": CustomEdgeStartEnd,
   };
 
   // Function to generate the diagram from the DBML input when the button is clicked
@@ -157,6 +207,7 @@ function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        snapToGrid={true}
         fitView
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
@@ -170,6 +221,8 @@ function App() {
         <MiniMap />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
+      <Tooltip id="table-tool-tip" />
+      <Tooltip id="column-tool-tip" />
 
       <Markers />
     </div>
