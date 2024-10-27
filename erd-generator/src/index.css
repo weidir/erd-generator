@@ -66,3 +66,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.react-flow__handle {
+  background-color: #242424d9;
+  border-radius: 100%;
+  border: "1px solid #242424d9";
+  outline: "none";
+  width: 0px;
+  height: 0px;
+  cursor: pointer;
+}
