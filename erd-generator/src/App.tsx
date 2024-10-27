@@ -1,5 +1,8 @@
 // Import third-party libraries
 import React, { useCallback, useState, useEffect } from "react";
+import AceEditor from "react-ace";
+import "brace/mode/javascript";
+import "brace/theme/monokai";
 import { Tooltip } from "react-tooltip";
 import { Button } from "@mui/material";
 import {
@@ -37,7 +40,7 @@ import { Markers, KeyImg } from "./SVG";
 
 function App() {
   // State for the DBML text input, nodes, and edges
-  const [dbml, setDbml] = useState("");
+  let [dbml, setDbml] = useState("");
   let [parsedResponse, setParsedResponsed] = useState("");
   let [parsedDbml, setParsedDbml] = useState("");
   let [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -107,12 +110,6 @@ function App() {
 
   // Function to generate the diagram from the DBML input when the button is clicked
   const handleGenerateDiagram = async () => {
-    // Handle empty inputs
-    if (dbml.trim() === "") {
-      alert("Please enter valid DBML code!");
-      return;
-    }
-
     // Parse the DBML text into a DBML object
     try {
       parsedResponse = await parseDbml(dbml); // Parse the DBML text into schema
@@ -158,69 +155,100 @@ function App() {
     setEdges(columnEdges);
   };
 
+  useEffect(() => {
+    handleGenerateDiagram();
+  }, [dbml]);
+
   return (
     // Center the div
     <div
       style={{
-        padding: "20px",
-        width: "90vw",
-        height: "90vh",
-        // margin: "auto",
-        // display: "flex",
-        // flexDirection: "column",
-        // justifyContent: "center",
-        // alignItems: "center",
+        padding: 0,
+        margin: 0,
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <h1>DBML to ERD Diagram</h1>
+      {/* <nav className="navbar navbar-expand-lg bg-body-tertiary">
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">
+            Navbar
+          </a>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              <li className="nav-item">
+                <a className="nav-link active" aria-current="page" href="#">
+                  Home
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#">
+                  Link
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav> */}
 
-      {/* Text area for DBML input */}
-      <textarea
-        id="dbml-input"
-        rows={10}
+      {/* Container for AceEditor and ReactFlow */}
+      <div
         style={{
+          display: "flex",
+          flexDirection: "row",
           width: "100%",
-          height: "auto",
-          overflowY: "scroll",
-          resize: "none",
-          marginBottom: "20px",
+          height: "100%",
         }}
-        value={dbml}
-        onChange={(e) => setDbml(e.target.value)}
-        placeholder="Paste your DBML here"
-      />
-
-      {/* Button to generate the diagram */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleGenerateDiagram}
-        style={{ marginBottom: "20px" }}
       >
-        Generate Diagram
-      </Button>
+        {/* AceEditor on the left */}
+        <div style={{ flex: 1, marginRight: "10px" }}>
+          <AceEditor
+            mode="javascript"
+            theme="monokai"
+            value={dbml}
+            onChange={(value) => setDbml(value)}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
 
-      {/* Render the diagram */}
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        snapToGrid={true}
-        fitView
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-      >
-        {/* Make the controls all black with white text */}
-        <Controls
-          style={{
-            color: "black",
-          }}
-        />
-        <MiniMap />
-        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-      </ReactFlow>
+        {/* ReactFlow on the right */}
+        <div style={{ flex: 2 }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            snapToGrid={true}
+            fitView
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+          >
+            {/* Make the controls all black with white text */}
+            <Controls
+              style={{
+                color: "black",
+              }}
+            />
+            <MiniMap />
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+          </ReactFlow>
+        </div>
+      </div>
+
       <Tooltip id="table-tool-tip" />
       <Tooltip id="column-tool-tip" />
 
