@@ -110,6 +110,11 @@ function App() {
 
   // Function to generate the diagram from the DBML input when the button is clicked
   const handleGenerateDiagram = async () => {
+    // If there is no DBML input, return
+    if (!dbml) {
+      return;
+    }
+
     // Parse the DBML text into a DBML object
     try {
       parsedResponse = await parseDbml(dbml); // Parse the DBML text into schema
