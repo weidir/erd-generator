@@ -17,7 +17,7 @@ function EdgeLabel({ transform, label }: { transform: string; label: string }) {
         background: "transparent",
         padding: 10,
         color: "white",
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: 700,
         transform,
       }}
@@ -58,8 +58,6 @@ const CustomEdgeStartEnd: FC<
 
   const markerStart = data?.markerStart?.type;
   const markerEnd = data?.markerEnd?.type;
-  console.log("markerStart", `url(#${markerStart})`);
-  console.log("markerEnd", `url(#${markerEnd})`);
 
   return (
     <>
@@ -72,13 +70,13 @@ const CustomEdgeStartEnd: FC<
       <EdgeLabelRenderer>
         {data?.startLabel && (
           <EdgeLabel
-            transform={`translate(${sourceX}px,${sourceY - 40}px)`}
+            transform={`translate(${sourceX}px,${sourceY - 35}px)`}
             label={data.startLabel}
           />
         )}
         {data?.endLabel && (
           <EdgeLabel
-            transform={`translate(${targetX - 30}px,${targetY - 40}px)`}
+            transform={`translate(${targetX - 30}px,${targetY - 35}px)`}
             label={data.endLabel}
           />
         )}
