@@ -1,5 +1,6 @@
 import React from "react";
-import { Position, NodeProps, BuiltInNode, Handle } from "@xyflow/react";
+import { NodeProps, BuiltInNode } from "@xyflow/react";
+import ReactTooltip from "react-tooltip";
 
 export default function TableNode({ data }: NodeProps<BuiltInNode>) {
   return (
