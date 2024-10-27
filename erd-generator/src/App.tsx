@@ -21,6 +21,7 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import html2canvas from "html2canvas";
 
 // Import custom functions and components
 import "./App.css";
@@ -98,6 +99,28 @@ function App() {
     };
   }, []);
 
+  const handleExport = useCallback(() => {
+    const reactFlowWrapper = document.querySelector(".react-flow");
+    if (!reactFlowWrapper) {
+      alert("Error: Unable to find the React Flow diagram.");
+      return;
+    }
+
+    // Use html2canvas to capture the diagram
+    html2canvas(reactFlowWrapper as HTMLElement, { useCORS: true }).then(
+      (canvas) => {
+        // Convert the canvas to a data URL
+        const image = canvas.toDataURL("image/png");
+
+        // Create a link element to trigger download
+        const downloadLink = document.createElement("a");
+        downloadLink.href = image;
+        downloadLink.download = "react-flow-diagram.png";
+        downloadLink.click();
+      }
+    );
+  }, []);
+
   // Define custom node types for tables
   const nodeTypes = {
     tableNode: TableNode,
@@ -107,6 +130,9 @@ function App() {
   const edgeTypes: EdgeTypes = {
     "custom-start-end": CustomEdgeStartEnd,
   };
+
+  // Default viewport for the diagram
+  const defaultViewport = { x: 0, y: 0, zoom: 1.5 };
 
   // Function to generate the diagram from the DBML input when the button is clicked
   const handleGenerateDiagram = async () => {
@@ -120,10 +146,15 @@ function App() {
       parsedResponse = await parseDbml(dbml); // Parse the DBML text into schema
       setParsedResponsed(parsedResponse);
       parsedDbml = parsedResponse["parsed_source"];
+
+      // Check if "error" key exists in the response
+      if (parsedDbml["error"]) {
+        console.log("Error parsing DBML:", parsedDbml["error"]);
+        throw new Error(parsedResponse["error"]);
+      }
       setParsedDbml(parsedDbml);
       console.log("DBML parsed successfully!");
     } catch (error) {
-      alert("Error parsing DBML. Please check the input format.");
       return;
     }
     console.log("Parsed response", parsedDbml);
@@ -176,38 +207,50 @@ function App() {
         flexDirection: "column",
       }}
     >
-      {/* <nav className="navbar navbar-expand-lg bg-body-tertiary">
-        <div className="container-fluid">
-          <a className="navbar-brand" href="#">
-            Navbar
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">
-                  Home
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">
-                  Link
-                </a>
-              </li>
-            </ul>
-          </div>
+      {/* Navbar */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px",
+          backgroundColor: "#222222",
+          color: "white",
+          outline: "1px solid #333333",
+        }}
+      >
+        <div style={{ fontSize: 30, font: "arial" }}>
+          DBLM to ERD Diagram Generator
         </div>
-      </nav> */}
+        <button
+          style={{
+            backgroundColor: "#555555",
+            color: "white",
+            border: "none",
+            // padding: "10px 20px",
+            cursor: "pointer",
+            fontSize: 20,
+          }}
+          onClick={handleExport}
+        >
+          <svg
+            fill="#000000"
+            width="20px"
+            height="20px"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke="white"
+              fill="white"
+              d="M8.71,7.71,11,5.41V15a1,1,0,0,0,2,0V5.41l2.29,2.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42l-4-4a1,1,0,0,0-.33-.21,1,1,0,0,0-.76,0,1,1,0,0,0-.33.21l-4,4A1,1,0,1,0,8.71,7.71ZM21,14a1,1,0,0,0-1,1v4a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V15a1,1,0,0,0-2,0v4a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V15A1,1,0,0,0,21,14Z"
+            />
+          </svg>
+          {"         "}
+          Export
+        </button>
+      </div>
 
       {/* Container for AceEditor and ReactFlow */}
       <div
@@ -241,6 +284,7 @@ function App() {
             fitView
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            defaultViewport={defaultViewport}
           >
             {/* Make the controls all black with white text */}
             <Controls
