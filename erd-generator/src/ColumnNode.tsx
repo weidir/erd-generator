@@ -15,7 +15,7 @@ type NodeProps<T> = {
 
 export default function ColumnNode({ data }: NodeProps<BuiltInNode>) {
   return (
-    <div className="column-node" data-parentId={data?.parent}>
+    <div className="column-node" data-parentid={data?.parent}>
       {data?.label}
     </div>
   );
