@@ -72,7 +72,7 @@ export const GenerateTableNodesEdges = (parsedDbml: any) => {
         },
         position: { x: xPosition, y: yPosition },
         style: {
-          backgroundColor: rgba(34, 34, 34, 0.8),
+          backgroundColor: rgba(34, 34, 34, 1),
           color: "white",
           fontSize: "20px",
           width: "300px",

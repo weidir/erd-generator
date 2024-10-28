@@ -2,20 +2,31 @@ import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 
-const elkOptions = {
-  "elk.algorithm": "layered",
+const elkDefaultOptions = {
+  "elk.algorithm": "mrtree",
+  "elk.direction": "RIGHT",
   "elk.algorthm.mrtree.options": "AVOID_OVERLAP",
+  "elk.radial.spacing.nodeNode": "100",
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
   "elk.edgeRouting": "SPLINE",
   "elk.spacing.nodeNode": "80",
-  "org.eclipse.elk.portConstraints": "FIXED_ORDER",
+  "elk.force.temperature": "0.0001",
+  // "org.eclipse.elk.portConstraints": "FIXED_ORDER",
   // "elk.layered.crossingMinimization.forceNodeModelOrder": "true",
   // "elk.layered.crossingMinimization.semiInteractive": "true",
   "elk.layered.mergeEdges": "true",
   "elk.spacing.edgeEdge": "100",
 };
 
-const getElkLayoutedElements = async (nodes, edges, options = elkOptions) => {
+const getElkLayoutedElements = async (
+  nodes,
+  edges,
+  options = elkDefaultOptions
+) => {
+  console.log("Given options", options);
+  // Combine the default options with the given options
+  options = { ...elkDefaultOptions, ...options };
+  console.log("Combined options", options);
   const isHorizontal = options?.["elk.direction"] === "RIGHT";
   for (const node of nodes) {
     // Get the width as an integer
@@ -37,6 +48,7 @@ const getElkLayoutedElements = async (nodes, edges, options = elkOptions) => {
     })),
     edges: edges,
   };
+  console.log("Given graph: ", graph);
 
   const layoutedGraph = await elk.layout(graph);
 

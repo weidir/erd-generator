@@ -5,12 +5,12 @@ import {
   getNodesBounds,
   getViewportForBounds,
 } from "@xyflow/react";
-import { toPng } from "html-to-image";
+import { toPng, toSvg } from "html-to-image";
 
 function downloadImage(dataUrl) {
   const a = document.createElement("a");
 
-  a.setAttribute("download", "reactflow.png");
+  a.setAttribute("download", "reactflow.svg");
   a.setAttribute("href", dataUrl);
   a.click();
 }
@@ -39,7 +39,8 @@ function DownloadButton() {
       2
     );
 
-    toPng(document.querySelector(".react-flow__viewport"), {
+    // Change to SVG
+    toSvg(document.querySelector(".react-flow__renderer"), {
       backgroundColor: "#242424",
       width: imageWidth,
       height: imageHeight,
@@ -68,7 +69,7 @@ function DownloadButton() {
           />
         </svg>
         {"         "}
-        Download Image
+        Download SVG
       </button>
     </Panel>
   );
