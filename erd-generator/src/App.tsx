@@ -57,7 +57,7 @@ function App() {
   let targets: string[] = [];
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [leftPaneWidth, setLeftPaneWidth] = useState(50); // Initial width of the left pane in percentage
+  const [leftPaneWidth, setLeftPaneWidth] = useState(30); // Initial width of the left pane in percentage
   const [isResizing, setIsResizing] = useState(false);
 
   // Start resizing when mouse is down on the resizer
@@ -292,7 +292,6 @@ function App() {
   // const { getLayoutedElements } = useLayoutedElements();
 
   return (
-    // Center the div
     <div
       style={{
         padding: 0,
@@ -318,7 +317,7 @@ function App() {
       >
         <div style={{ fontSize: 30, font: "arial", alignContent: "center" }}>
           <img
-            src="../public/dbml.png"
+            src="/dbml.png"
             alt="DBML Logo"
             style={{ width: 23, height: 23 }}
           />
