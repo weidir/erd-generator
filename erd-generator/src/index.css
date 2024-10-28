@@ -68,11 +68,5 @@ button:focus-visible {
 }
 
 .react-flow__handle {
-  background-color: #242424d9;
-  border-radius: 100%;
-  border: "1px solid #242424d9";
-  outline: "none";
-  width: 0px;
-  height: 0px;
-  cursor: pointer;
+  opacity: 0;
 }
