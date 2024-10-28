@@ -19,7 +19,7 @@ import {
   addEdge,
   BackgroundVariant,
   FitViewOptions,
-  useReactFlow,
+  SelectionMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
@@ -140,7 +140,7 @@ function App() {
     "custom-start-end": CustomEdgeStartEnd,
   };
   const fitViewOptions: FitViewOptions = {
-    minZoom: 0.01,
+    minZoom: 0.001,
     maxZoom: 1.5,
   };
 
@@ -184,8 +184,8 @@ function App() {
     console.log("Table edges:", tableNodes);
 
     // Get the proper layout for the nodes
-    // nodes = getGridLayoutedElements(nodes);
-    // ({ nodes, edges } = getDagreLayoutedElements(nodes, edges));
+    setActiveAlgorithm("layered");
+    setActiveDirection("RIGHT");
     const layoutedNodes = await getElkLayoutedElements(tableNodes, tableEdges);
     tableNodes = layoutedNodes;
     setTableNodes(tableNodes);
@@ -248,12 +248,6 @@ function App() {
     },
     [tableNodes, tableEdges]
   );
-
-  const handleClick = (algorithm, direction, buttonName) => {
-    setActiveAlgorithm(algorithm);
-    setActiveDirection(direction);
-    updateNodesLayout(nodes, edges, algorithm, direction);
-  };
 
   useEffect(() => {
     updateNodesLayout(tableNodes, tableEdges, activeAlgorithm, activeDirection);
@@ -337,6 +331,10 @@ function App() {
             edgeTypes={edgeTypes}
             defaultViewport={defaultViewport}
             fitViewOptions={fitViewOptions}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={[1, 2]}
+            selectionMode={SelectionMode.Partial}
             style={{
               outline: "1px solid #333333",
               width: "100%",
@@ -360,22 +358,36 @@ function App() {
               <button
                 onClick={() => {
                   setActiveAlgorithm("layered");
-                  setActiveDirection("DOWN");
-                  console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, "layered", "DOWN");
-                }}
-              >
-                vertical layout
-              </button>
-              <button
-                onClick={() => {
-                  setActiveAlgorithm("layered");
                   setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
                   updateNodesLayout(nodes, edges, "layered", "RIGHT");
                 }}
+                style={{
+                  margin: "3px",
+                  outline:
+                    activeAlgorithm === "layered" && activeDirection === "RIGHT"
+                      ? "2px solid #676EFD"
+                      : "none",
+                }}
               >
                 horizontal layout
+              </button>
+              <button
+                onClick={() => {
+                  setActiveAlgorithm("layered");
+                  setActiveDirection("DOWN");
+                  console.log("Active algorithm:", activeAlgorithm);
+                  updateNodesLayout(nodes, edges, "layered", "DOWN");
+                }}
+                style={{
+                  margin: "3px",
+                  outline:
+                    activeAlgorithm === "layered" && activeDirection === "DOWN"
+                      ? "2px solid #676EFD"
+                      : "none",
+                }}
+              >
+                vertical layout
               </button>
               <button
                 onClick={() => {
@@ -383,6 +395,11 @@ function App() {
                   setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
                   updateNodesLayout(nodes, edges, "mrtree", "RIGHT");
+                }}
+                style={{
+                  margin: "3px",
+                  outline:
+                    activeAlgorithm === "mrtree" ? "2px solid #676EFD" : "none",
                 }}
               >
                 tree layout
@@ -393,6 +410,11 @@ function App() {
                   setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
                   updateNodesLayout(nodes, edges, "force", "RIGHT");
+                }}
+                style={{
+                  margin: "3px",
+                  outline:
+                    activeAlgorithm === "force" ? "2px solid #676EFD" : "none",
                 }}
               >
                 force layout
