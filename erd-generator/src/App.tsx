@@ -345,6 +345,9 @@ function App() {
           >
             {/* Make the controls all black with white text */}
             <Controls
+              showInteractive={true}
+              showZoom={true}
+              showFitView={true}
               style={{
                 color: "black",
               }}
