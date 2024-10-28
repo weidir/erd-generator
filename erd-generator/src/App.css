@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+
+.split-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.pane {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-left {
+  width: 50%;
+  min-width: 100px; /* Minimum width to prevent collapse */
+  max-width: calc(100% - 10px);
+  resize: horizontal;
+}
+
+.pane-right {
+  flex-grow: 1;
+  min-width: 100px;
+}
+
+.resizer {
+  width: 5px;
+  cursor: col-resize;
+  background-color: #333;
+  user-select: none;
+}
