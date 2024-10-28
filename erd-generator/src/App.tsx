@@ -52,10 +52,8 @@ function App() {
   let [tableEdges, setTableEdges] = useState<Edge[]>([]);
   let [columnEdges, setColumnEdges] = useState<Edge[]>([]);
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  let [activeAlgorithm, setActiveAlgorithm] = useState({
-    "elk.algorithm": "layered",
-    "elk.direction": "RIGHT",
-  });
+  let [activeAlgorithm, setActiveAlgorithm] = useState("layered");
+  let [activeDirection, setActiveDirection] = useState("RIGHT");
   let sources: string[] = [];
   let targets: string[] = [];
 
@@ -220,16 +218,21 @@ function App() {
   }, [dbml]);
 
   const updateNodesLayout = useCallback(
-    async (tableNodes, tableEdges, options) => {
-      console.log("Updating layout with options:", options);
-      console.log("Table nodes within update function:", tableNodes);
-      console.log("Table edges within update function:", tableEdges);
-      console.log("Column nodes within update function:", columnNodes);
+    async (tableNodes, tableEdges, algorithm, direction) => {
+      const options = {
+        "elk.algorithm": algorithm,
+        "elk.direction": direction,
+      };
+
+      console.log("Updating layout with options:", {
+        options: algorithm,
+        direction: direction,
+      });
       // Regenerate the layout for the table nodes
       const layoutedNodes = await getElkLayoutedElements(
         tableNodes,
         tableEdges,
-        options
+        options as any
       );
       console.log("Layouted nodes:", layoutedNodes);
       setTableNodes(layoutedNodes);
@@ -246,9 +249,15 @@ function App() {
     [tableNodes, tableEdges]
   );
 
+  const handleClick = (algorithm, direction, buttonName) => {
+    setActiveAlgorithm(algorithm);
+    setActiveDirection(direction);
+    updateNodesLayout(nodes, edges, algorithm, direction);
+  };
+
   useEffect(() => {
-    updateNodesLayout(tableNodes, tableEdges, activeAlgorithm);
-  }, [activeAlgorithm]);
+    updateNodesLayout(tableNodes, tableEdges, activeAlgorithm, activeDirection);
+  }, [activeAlgorithm, activeDirection]);
 
   return (
     <div
@@ -350,48 +359,40 @@ function App() {
             <Panel position="top-right">
               <button
                 onClick={() => {
-                  setActiveAlgorithm({
-                    "elk.algorithm": "layered",
-                    "elk.direction": "DOWN",
-                  });
+                  setActiveAlgorithm("layered");
+                  setActiveDirection("DOWN");
                   console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, activeAlgorithm);
+                  updateNodesLayout(nodes, edges, "layered", "DOWN");
                 }}
               >
                 vertical layout
               </button>
               <button
                 onClick={() => {
-                  setActiveAlgorithm({
-                    "elk.algorithm": "layered",
-                    "elk.direction": "RIGHT",
-                  });
+                  setActiveAlgorithm("layered");
+                  setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, activeAlgorithm);
+                  updateNodesLayout(nodes, edges, "layered", "RIGHT");
                 }}
               >
                 horizontal layout
               </button>
               <button
                 onClick={() => {
-                  setActiveAlgorithm({
-                    "elk.algorithm": "radial",
-                    "elk.direction": "RIGHT",
-                  });
+                  setActiveAlgorithm("mrtree");
+                  setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, activeAlgorithm);
+                  updateNodesLayout(nodes, edges, "mrtree", "RIGHT");
                 }}
               >
-                radial layout
+                tree layout
               </button>
               <button
                 onClick={() => {
-                  setActiveAlgorithm({
-                    "elk.algorithm": "force",
-                    "elk.direction": "RIGHT",
-                  });
+                  setActiveAlgorithm("force");
+                  setActiveDirection("RIGHT");
                   console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, activeAlgorithm);
+                  updateNodesLayout(nodes, edges, "force", "RIGHT");
                 }}
               >
                 force layout
