@@ -346,6 +346,7 @@ function App() {
               showInteractive={true}
               showZoom={true}
               showFitView={true}
+              fitViewOptions={fitViewOptions}
               style={{
                 color: "black",
               }}
