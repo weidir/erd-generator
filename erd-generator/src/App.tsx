@@ -419,7 +419,7 @@ function App() {
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <DownloadButton />
             {/* Panel for layout buttons, aligned vertically */}
-            {/* <Panel position="top-right">
+            <Panel position="top-right">
               <button
                 onClick={() =>
                   getLayoutedElements({
@@ -458,13 +458,27 @@ function App() {
               >
                 force layout
               </button>
-            </Panel> */}
+            </Panel>
           </ReactFlow>
         </div>
       </div>
 
-      <Tooltip id="table-tool-tip" />
-      <Tooltip id="column-tool-tip" />
+      <div>
+        <Tooltip
+          id="table-tool-tip"
+          style={{
+            color: "white",
+            width: "200px",
+          }}
+        />
+        <Tooltip
+          id="column-tool-tip"
+          style={{
+            color: "white",
+            width: "200px",
+          }}
+        />
+      </div>
 
       <Markers />
     </div>
