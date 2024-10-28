@@ -4,9 +4,11 @@ const elk = new ELK();
 
 const elkOptions = {
   "elk.algorithm": "layered",
+  "elk.algorthm.mrtree.options": "AVOID_OVERLAP",
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
   "elk.edgeRouting": "SPLINE",
   "elk.spacing.nodeNode": "80",
+  "org.eclipse.elk.portConstraints": "FIXED_ORDER",
   // "elk.layered.crossingMinimization.forceNodeModelOrder": "true",
   // "elk.layered.crossingMinimization.semiInteractive": "true",
   "elk.layered.mergeEdges": "true",
