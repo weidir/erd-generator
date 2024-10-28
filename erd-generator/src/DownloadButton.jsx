@@ -20,8 +20,8 @@ function DownloadButton() {
 
   // Calculate image dimensions based on window size
   const calculateImageDimensions = () => {
-    const imageWidth = window.innerWidth * 0.8; // 80% of the window width
-    const imageHeight = window.innerHeight * 0.8; // 80% of the window height
+    const imageWidth = window.innerWidth;
+    const imageHeight = window.innerHeight;
     return { imageWidth, imageHeight };
   };
   const onClick = () => {
@@ -52,7 +52,7 @@ function DownloadButton() {
   };
 
   return (
-    <Panel position="top-right">
+    <Panel position="top-left" margin="10px">
       <button className="download-btn" onClick={onClick}>
         Download Image
       </button>
