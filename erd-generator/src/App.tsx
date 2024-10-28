@@ -52,8 +52,8 @@ function App() {
   let [tableEdges, setTableEdges] = useState<Edge[]>([]);
   let [columnEdges, setColumnEdges] = useState<Edge[]>([]);
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  let [activeAlgorithm, setActiveAlgorithm] = useState("layered");
-  let [activeDirection, setActiveDirection] = useState("RIGHT");
+  let [activeAlgorithm, setActiveAlgorithm] = useState("mrtree");
+  let [activeDirection, setActiveDirection] = useState("");
   let sources: string[] = [];
   let targets: string[] = [];
 
@@ -184,9 +184,15 @@ function App() {
     console.log("Table edges:", tableNodes);
 
     // Get the proper layout for the nodes
-    setActiveAlgorithm("layered");
-    setActiveDirection("RIGHT");
-    const layoutedNodes = await getElkLayoutedElements(tableNodes, tableEdges);
+    const options = {
+      "elk.algorithm": activeAlgorithm,
+      "elk.direction": activeDirection,
+    };
+    const layoutedNodes = await getElkLayoutedElements(
+      tableNodes,
+      tableEdges,
+      options as any
+    );
     tableNodes = layoutedNodes;
     setTableNodes(tableNodes);
     setTableEdges(tableEdges);
@@ -334,7 +340,7 @@ function App() {
             panOnScroll
             selectionOnDrag
             panOnDrag={[1, 2]}
-            selectionMode={SelectionMode.Partial}
+            selectionMode={SelectionMode.Full}
             style={{
               outline: "1px solid #333333",
               width: "100%",
@@ -358,13 +364,47 @@ function App() {
             <Panel position="top-right">
               <button
                 onClick={() => {
-                  setActiveAlgorithm("layered");
-                  setActiveDirection("RIGHT");
-                  console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, "layered", "RIGHT");
+                  if (activeAlgorithm !== "mrtree") {
+                    setActiveAlgorithm("mrtree");
+                    setActiveDirection("RIGHT");
+                    console.log("Active algorithm:", activeAlgorithm);
+                    updateNodesLayout(nodes, edges, "mrtree", "RIGHT");
+                  } else {
+                    console.log(
+                      "Not updating layout settings, active algorithm and direction",
+                      activeAlgorithm,
+                      activeDirection
+                    );
+                  }
                 }}
                 style={{
-                  margin: "3px",
+                  marginRight: "3px",
+                  outline:
+                    activeAlgorithm === "mrtree" ? "2px solid #676EFD" : "none",
+                }}
+              >
+                tree layout
+              </button>
+              <button
+                onClick={() => {
+                  if (
+                    activeAlgorithm === "layered" &&
+                    activeDirection == "RIGHT"
+                  ) {
+                    console.log(
+                      "Not updating layout settings, active algorithm and direction",
+                      activeAlgorithm,
+                      activeDirection
+                    );
+                  } else {
+                    setActiveAlgorithm("layered");
+                    setActiveDirection("RIGHT");
+                    console.log("Active algorithm:", activeAlgorithm);
+                    updateNodesLayout(nodes, edges, "layered", "RIGHT");
+                  }
+                }}
+                style={{
+                  marginRight: "3px",
                   outline:
                     activeAlgorithm === "layered" && activeDirection === "RIGHT"
                       ? "2px solid #676EFD"
@@ -375,13 +415,24 @@ function App() {
               </button>
               <button
                 onClick={() => {
-                  setActiveAlgorithm("layered");
-                  setActiveDirection("DOWN");
-                  console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, "layered", "DOWN");
+                  if (
+                    activeAlgorithm === "layered" &&
+                    activeDirection === "DOWN"
+                  ) {
+                    console.log(
+                      "Not updating layout settings, active algorithm and direction",
+                      activeAlgorithm,
+                      activeDirection
+                    );
+                  } else {
+                    setActiveAlgorithm("layered");
+                    setActiveDirection("DOWN");
+                    console.log("Active algorithm:", activeAlgorithm);
+                    updateNodesLayout(nodes, edges, "layered", "DOWN");
+                  }
                 }}
                 style={{
-                  margin: "3px",
+                  marginRight: "3px",
                   outline:
                     activeAlgorithm === "layered" && activeDirection === "DOWN"
                       ? "2px solid #676EFD"
@@ -390,30 +441,24 @@ function App() {
               >
                 vertical layout
               </button>
+
               <button
                 onClick={() => {
-                  setActiveAlgorithm("mrtree");
-                  setActiveDirection("RIGHT");
-                  console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, "mrtree", "RIGHT");
+                  if (activeAlgorithm !== "force") {
+                    setActiveAlgorithm("force");
+                    setActiveDirection("RIGHT");
+                    console.log("Active algorithm:", activeAlgorithm);
+                    updateNodesLayout(nodes, edges, "force", "RIGHT");
+                  } else {
+                    console.log(
+                      "Not updating layout settings, active algorithm and direction",
+                      activeAlgorithm,
+                      activeDirection
+                    );
+                  }
                 }}
                 style={{
-                  margin: "3px",
-                  outline:
-                    activeAlgorithm === "mrtree" ? "2px solid #676EFD" : "none",
-                }}
-              >
-                tree layout
-              </button>
-              <button
-                onClick={() => {
-                  setActiveAlgorithm("force");
-                  setActiveDirection("RIGHT");
-                  console.log("Active algorithm:", activeAlgorithm);
-                  updateNodesLayout(nodes, edges, "force", "RIGHT");
-                }}
-                style={{
-                  margin: "3px",
+                  marginRight: "3px",
                   outline:
                     activeAlgorithm === "force" ? "2px solid #676EFD" : "none",
                 }}
