@@ -249,6 +249,7 @@ export const GenerateColumnNodesEdges = (
         // Create a node for each column and push it to the nodes array
         const columnNode = {
           id: `${tableName}.${columnName}`,
+          draggable: false,
           data: {
             label: (
               // Add handles to the column node if it has an edge
@@ -357,8 +358,6 @@ export const GenerateColumnNodesEdges = (
           },
           parentId: tableName,
           extent: "parent" as const,
-          // sourcePosition: Position.Right,
-          // targetPosition: Position.Left,
           type: "columnNode",
           "data-tip": column.note,
         };
