@@ -71,3 +71,21 @@
   background-color: #333;
   user-select: none;
 }
+
+.react-flow__controls-button {
+  background-color: #888;
+  color: "#333";
+  border: none;
+  padding: 0.5em;
+  cursor: pointer;
+  /* border-radius: 0.25em; */
+}
+
+.react-flow__minimap-svg {
+  background-color: #888;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 1px solid #333;
+  border-radius: 0.25em;
+}
