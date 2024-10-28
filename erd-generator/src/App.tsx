@@ -19,9 +19,10 @@ import {
   addEdge,
   BackgroundVariant,
   FitViewOptions,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import html2canvas from "html2canvas";
+import ELK from "elkjs/lib/elk.bundled.js";
 
 // Import custom functions and components
 import "./App.css";
@@ -46,7 +47,12 @@ function App() {
   let [parsedResponse, setParsedResponsed] = useState("");
   let [parsedDbml, setParsedDbml] = useState("");
   let [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  let [tableNodes, setTableNodes] = useState<Node[]>([]);
+  let [columnNodes, setColumnNodes] = useState<Node[]>([]);
+  let [tableEdges, setTableEdges] = useState<Edge[]>([]);
+  let [columnEdges, setColumnEdges] = useState<Edge[]>([]);
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  let [activeAlgorithm, setActiveAlgorithm] = useState("ELK");
   let sources: string[] = [];
   let targets: string[] = [];
 
@@ -122,28 +128,28 @@ function App() {
     };
   }, []);
 
-  const handleExport = useCallback(() => {
-    const reactFlowWrapper = document.querySelector(".react-flow");
-    if (!reactFlowWrapper) {
-      alert("Error: Unable to find the React Flow diagram.");
-      return;
-    }
+  // const handleExport = useCallback(() => {
+  //   const reactFlowWrapper = document.querySelector(".react-flow");
+  //   if (!reactFlowWrapper) {
+  //     alert("Error: Unable to find the React Flow diagram.");
+  //     return;
+  //   }
 
-    // Use html2canvas to capture the diagram
-    html2canvas(reactFlowWrapper as HTMLElement, {
-      useCORS: true,
-      backgroundColor: "#242424",
-    }).then((canvas) => {
-      // Convert the canvas to a data URL
-      const image = canvas.toDataURL("image/png");
+  //   // Use html2canvas to capture the diagram
+  //   html2canvas(reactFlowWrapper as HTMLElement, {
+  //     useCORS: true,
+  //     backgroundColor: "#242424",
+  //   }).then((canvas) => {
+  //     // Convert the canvas to a data URL
+  //     const image = canvas.toDataURL("image/png");
 
-      // Create a link element to trigger download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = image;
-      downloadLink.download = "diagram.png";
-      downloadLink.click();
-    });
-  }, []);
+  //     // Create a link element to trigger download
+  //     const downloadLink = document.createElement("a");
+  //     downloadLink.href = image;
+  //     downloadLink.download = "diagram.png";
+  //     downloadLink.click();
+  //   });
+  // }, []);
 
   // Define custom node types for tables
   const nodeTypes = {
@@ -188,18 +194,23 @@ function App() {
     console.log("Parsed response", parsedDbml);
 
     // Generate nodes and edges from the parsed DBML
-    ({ nodes, edges, sources, targets } = GenerateTableNodesEdges(parsedDbml));
+    ({
+      nodes: tableNodes,
+      edges: tableEdges,
+      sources,
+      targets,
+    } = GenerateTableNodesEdges(parsedDbml));
 
-    console.log("Table nodes:", nodes);
-    console.log("Table edges:", edges);
+    console.log("Table nodes:", tableNodes);
+    console.log("Table edges:", tableNodes);
 
     // Get the proper layout for the nodes
     // nodes = getGridLayoutedElements(nodes);
     // ({ nodes, edges } = getDagreLayoutedElements(nodes, edges));
-    const layoutedNodes = await getElkLayoutedElements(nodes, edges);
-    nodes = layoutedNodes;
-    console.log("Layouted nodes:", nodes);
-    console.log("Layouted edges:", edges);
+    const layoutedNodes = await getElkLayoutedElements(tableNodes, tableEdges);
+    tableNodes = layoutedNodes;
+    console.log("Layouted nodes:", tableNodes);
+    console.log("Layouted edges:", tableEdges);
 
     // Generate nodes and edges for each column
     let columnNodes: Node[] = [];
@@ -211,7 +222,7 @@ function App() {
     ));
 
     // Combine the table and column nodes
-    nodes = [...nodes, ...columnNodes];
+    nodes = [...tableNodes, ...columnNodes];
 
     // Set the nodes and edges in the diagram
     // Set the edges to only the column edges
@@ -222,6 +233,63 @@ function App() {
   useEffect(() => {
     handleGenerateDiagram();
   }, [dbml]);
+
+  // const elk = new ELK();
+
+  // const defaultELKOptions = {
+  //   "elk.algorithm": "layered",
+  //   "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+  //   "elk.spacing.nodeNode": 80,
+  // };
+
+  // const useLayoutedElements = () => {
+  //   const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+  //   const defaultOptions = {
+  //     "elk.algorithm": "layered",
+  //     "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+  //     "elk.spacing.nodeNode": 80,
+  //   };
+
+  //   const getLayoutedElements = useCallback((options) => {
+  //     const layoutOptions = { ...defaultOptions, ...options };
+  //     const graph = {
+  //       id: "root",
+  //       layoutOptions: layoutOptions,
+  //       children: getNodes().map((node) => ({
+  //         ...node,
+  //         width: node.measured ? node.measured.width : 300,
+  //         height: node.measured ? node.measured.height : 300,
+  //       })),
+  //       edges: getEdges(),
+  //     };
+
+  //     elk
+  //       .layout({
+  //         ...graph,
+  //         edges: graph.edges.map((edge) => ({
+  //           ...edge,
+  //           sources: [edge.source],
+  //           targets: [edge.target],
+  //         })),
+  //       })
+  //       .then(({ children }) => {
+  //         // By mutating the children in-place we saves ourselves from creating a
+  //         // needless copy of the nodes array.
+  //         children?.forEach((node) => {
+  //           (node as any).position = { x: node.x, y: node.y };
+  //         });
+
+  //         setNodes(children as Node[]);
+  //         window.requestAnimationFrame(() => {
+  //           fitView();
+  //         });
+  //       });
+  //   }, []);
+
+  //   return { getLayoutedElements };
+  // };
+
+  // const { getLayoutedElements } = useLayoutedElements();
 
   return (
     // Center the div
@@ -243,12 +311,18 @@ function App() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "10px",
-          backgroundColor: "#222222",
+          // backgroundColor: "#222222",
           color: "white",
           outline: "1px solid #333333",
         }}
       >
-        <div style={{ fontSize: 30, font: "arial" }}>
+        <div style={{ fontSize: 30, font: "arial", alignContent: "center" }}>
+          <img
+            src="../public/dbml.png"
+            alt="DBML Logo"
+            style={{ width: 23, height: 23 }}
+          />
+          {"   "}
           <b>DBLM to ERD Diagram Generator</b>
         </div>
         {/* <button
@@ -298,15 +372,7 @@ function App() {
         }}
       >
         {/* AceEditor on the left */}
-        <div
-          className="pane pane-left"
-          style={{ width: `${leftPaneWidth}%` }}
-          // style={{
-          //   flex: 1,
-          //   marginRight: "0px",
-          //   outline: "1px solid #333333",
-          // }}
-        >
+        <div className="pane pane-left" style={{ width: `${leftPaneWidth}%` }}>
           <AceEditor
             mode="javascript"
             theme="monokai"
@@ -320,10 +386,8 @@ function App() {
         {/* Resizer */}
         <div className="resizer" onMouseDown={startResizing}></div>
 
-        {/* ReactFlow on the right */}
         <div className="pane pane-right">
           {" "}
-          {/* style={{ flex: 2 }}} */}
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -355,10 +419,50 @@ function App() {
             <MiniMap />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <DownloadButton />
+            {/* Panel for layout buttons, aligned vertically */}
+            {/* <Panel position="top-right">
+              <button
+                onClick={() =>
+                  getLayoutedElements({
+                    "elk.algorithm": "layered",
+                    "elk.direction": "DOWN",
+                  })
+                }
+              >
+                vertical layout
+              </button>
+              <button
+                onClick={() =>
+                  getLayoutedElements({
+                    "elk.algorithm": "layered",
+                    "elk.direction": "RIGHT",
+                  })
+                }
+              >
+                horizontal layout
+              </button>
+              <button
+                onClick={() =>
+                  getLayoutedElements({
+                    "elk.algorithm": "org.eclipse.elk.radial",
+                  })
+                }
+              >
+                radial layout
+              </button>
+              <button
+                onClick={() =>
+                  getLayoutedElements({
+                    "elk.algorithm": "org.eclipse.elk.force",
+                  })
+                }
+              >
+                force layout
+              </button>
+            </Panel> */}
           </ReactFlow>
         </div>
       </div>
-      {/* </SplitPane> */}
 
       <Tooltip id="table-tool-tip" />
       <Tooltip id="column-tool-tip" />
