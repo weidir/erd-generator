@@ -1,10 +1,9 @@
 // Import third-party libraries
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import AceEditor from "react-ace";
-import "brace/mode/javascript";
-import "brace/theme/monokai";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/theme-monokai";
 import { Tooltip } from "react-tooltip";
-import { Button } from "@mui/material";
 import {
   type EdgeTypes,
   type Edge,
@@ -19,6 +18,7 @@ import {
   OnConnect,
   addEdge,
   BackgroundVariant,
+  FitViewOptions,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import html2canvas from "html2canvas";
@@ -38,6 +38,7 @@ import {
   GenerateColumnNodesEdges,
 } from "./GenerateNodesEdges";
 import { Markers, KeyImg } from "./SVG";
+import DownloadButton from "./DownloadButton";
 
 function App() {
   // State for the DBML text input, nodes, and edges
@@ -48,10 +49,32 @@ function App() {
   let [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   let sources: string[] = [];
   let targets: string[] = [];
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [leftPaneWidth, setLeftPaneWidth] = useState(50); // Initial width of the left pane in percentage
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Start resizing when mouse is down on the resizer
+  const startResizing = () => setIsResizing(true);
+
+  // Stop resizing when mouse is up or out
+  const stopResizing = () => setIsResizing(false);
+
+  // Handle resizing the panes
+  const resizePane = (event) => {
+    if (!isResizing || !containerRef.current) return;
+
+    const containerWidth = containerRef.current.getBoundingClientRect().width;
+    const newWidth = (event.clientX / containerWidth) * 100;
+    if (newWidth > 10 && newWidth < 90) {
+      setLeftPaneWidth(newWidth); // Limit to avoid collapse
+    }
+  };
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
   // Add event listeners to highlight nodes on mouseover
   useEffect(() => {
     const handleMouseOver = (event: MouseEvent) => {
@@ -107,18 +130,19 @@ function App() {
     }
 
     // Use html2canvas to capture the diagram
-    html2canvas(reactFlowWrapper as HTMLElement, { useCORS: true }).then(
-      (canvas) => {
-        // Convert the canvas to a data URL
-        const image = canvas.toDataURL("image/png");
+    html2canvas(reactFlowWrapper as HTMLElement, {
+      useCORS: true,
+      backgroundColor: "#242424",
+    }).then((canvas) => {
+      // Convert the canvas to a data URL
+      const image = canvas.toDataURL("image/png");
 
-        // Create a link element to trigger download
-        const downloadLink = document.createElement("a");
-        downloadLink.href = image;
-        downloadLink.download = "react-flow-diagram.png";
-        downloadLink.click();
-      }
-    );
+      // Create a link element to trigger download
+      const downloadLink = document.createElement("a");
+      downloadLink.href = image;
+      downloadLink.download = "diagram.png";
+      downloadLink.click();
+    });
   }, []);
 
   // Define custom node types for tables
@@ -129,6 +153,10 @@ function App() {
   // Define custom edge types that support labels and markers at the start and end
   const edgeTypes: EdgeTypes = {
     "custom-start-end": CustomEdgeStartEnd,
+  };
+  const fitViewOptions: FitViewOptions = {
+    minZoom: 0.01,
+    maxZoom: 1.5,
   };
 
   // Default viewport for the diagram
@@ -221,23 +249,26 @@ function App() {
         }}
       >
         <div style={{ fontSize: 30, font: "arial" }}>
-          DBLM to ERD Diagram Generator
+          <b>DBLM to ERD Diagram Generator</b>
         </div>
-        <button
+        {/* <button
           style={{
-            backgroundColor: "#555555",
+            backgroundColor: "#333333",
             color: "white",
             border: "none",
-            // padding: "10px 20px",
+            padding: "5px 20px",
             cursor: "pointer",
             fontSize: 20,
+            height: "40px",
+            width: "auto",
+            alignContent: "center",
           }}
           onClick={handleExport}
         >
           <svg
             fill="#000000"
-            width="20px"
-            height="20px"
+            width="16px"
+            height="16px"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -249,11 +280,16 @@ function App() {
           </svg>
           {"         "}
           Export
-        </button>
+        </button> */}
       </div>
 
       {/* Container for AceEditor and ReactFlow */}
       <div
+        className="split-container"
+        ref={containerRef}
+        onMouseMove={resizePane}
+        onMouseUp={stopResizing}
+        onMouseLeave={stopResizing}
         style={{
           display: "flex",
           flexDirection: "row",
@@ -262,18 +298,32 @@ function App() {
         }}
       >
         {/* AceEditor on the left */}
-        <div style={{ flex: 1, marginRight: "10px" }}>
+        <div
+          className="pane pane-left"
+          style={{ width: `${leftPaneWidth}%` }}
+          // style={{
+          //   flex: 1,
+          //   marginRight: "0px",
+          //   outline: "1px solid #333333",
+          // }}
+        >
           <AceEditor
             mode="javascript"
             theme="monokai"
+            showPrintMargin={false}
             value={dbml}
             onChange={(value) => setDbml(value)}
             style={{ width: "100%", height: "100%" }}
           />
         </div>
 
+        {/* Resizer */}
+        <div className="resizer" onMouseDown={startResizing}></div>
+
         {/* ReactFlow on the right */}
-        <div style={{ flex: 2 }}>
+        <div className="pane pane-right">
+          {" "}
+          {/* style={{ flex: 2 }}} */}
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -285,6 +335,13 @@ function App() {
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             defaultViewport={defaultViewport}
+            fitViewOptions={fitViewOptions}
+            style={{
+              outline: "1px solid #333333",
+              width: "100%",
+              height: "100%",
+            }}
+            className="download-image"
           >
             {/* Make the controls all black with white text */}
             <Controls
@@ -294,9 +351,11 @@ function App() {
             />
             <MiniMap />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            <DownloadButton />
           </ReactFlow>
         </div>
       </div>
+      {/* </SplitPane> */}
 
       <Tooltip id="table-tool-tip" />
       <Tooltip id="column-tool-tip" />
