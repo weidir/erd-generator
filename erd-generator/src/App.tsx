@@ -168,6 +168,61 @@ function App() {
   // Default viewport for the diagram
   const defaultViewport = { x: 0, y: 0, zoom: 1.5 };
 
+  // const elk = new ELK();
+
+  // const defaultELKOptions = {
+  //   "elk.algorithm": "layered",
+  //   "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+  //   "elk.spacing.nodeNode": 80,
+  // };
+
+  // const useLayoutedElements = () => {
+  //   const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+  //   const defaultOptions = {
+  //     "elk.algorithm": "layered",
+  //     "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+  //     "elk.spacing.nodeNode": 80,
+  //   };
+
+  //   const getLayoutedElements = useCallback((options) => {
+  //     const layoutOptions = { ...defaultOptions, ...options };
+  //     const graph = {
+  //       id: "root",
+  //       layoutOptions: layoutOptions,
+  //       children: getNodes().map((node) => ({
+  //         ...node,
+  //         width: node.measured ? node.measured.width : 300,
+  //         height: node.measured ? node.measured.height : 300,
+  //       })),
+  //       edges: getEdges(),
+  //     };
+
+  //     elk
+  //       .layout({
+  //         ...graph,
+  //         edges: graph.edges.map((edge) => ({
+  //           ...edge,
+  //           sources: [edge.source],
+  //           targets: [edge.target],
+  //         })),
+  //       })
+  //       .then(({ children }) => {
+  //         // By mutating the children in-place we saves ourselves from creating a
+  //         // needless copy of the nodes array.
+  //         children?.forEach((node) => {
+  //           (node as any).position = { x: node.x, y: node.y };
+  //         });
+
+  //         setNodes(children as Node[]);
+  //         window.requestAnimationFrame(() => {
+  //           fitView();
+  //         });
+  //       });
+  //   }, []);
+
+  //   return { getLayoutedElements };
+  // };
+
   // Function to generate the diagram from the DBML input when the button is clicked
   const handleGenerateDiagram = async () => {
     // If there is no DBML input, return
@@ -233,61 +288,6 @@ function App() {
   useEffect(() => {
     handleGenerateDiagram();
   }, [dbml]);
-
-  // const elk = new ELK();
-
-  // const defaultELKOptions = {
-  //   "elk.algorithm": "layered",
-  //   "elk.layered.spacing.nodeNodeBetweenLayers": 100,
-  //   "elk.spacing.nodeNode": 80,
-  // };
-
-  // const useLayoutedElements = () => {
-  //   const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
-  //   const defaultOptions = {
-  //     "elk.algorithm": "layered",
-  //     "elk.layered.spacing.nodeNodeBetweenLayers": 100,
-  //     "elk.spacing.nodeNode": 80,
-  //   };
-
-  //   const getLayoutedElements = useCallback((options) => {
-  //     const layoutOptions = { ...defaultOptions, ...options };
-  //     const graph = {
-  //       id: "root",
-  //       layoutOptions: layoutOptions,
-  //       children: getNodes().map((node) => ({
-  //         ...node,
-  //         width: node.measured ? node.measured.width : 300,
-  //         height: node.measured ? node.measured.height : 300,
-  //       })),
-  //       edges: getEdges(),
-  //     };
-
-  //     elk
-  //       .layout({
-  //         ...graph,
-  //         edges: graph.edges.map((edge) => ({
-  //           ...edge,
-  //           sources: [edge.source],
-  //           targets: [edge.target],
-  //         })),
-  //       })
-  //       .then(({ children }) => {
-  //         // By mutating the children in-place we saves ourselves from creating a
-  //         // needless copy of the nodes array.
-  //         children?.forEach((node) => {
-  //           (node as any).position = { x: node.x, y: node.y };
-  //         });
-
-  //         setNodes(children as Node[]);
-  //         window.requestAnimationFrame(() => {
-  //           fitView();
-  //         });
-  //       });
-  //   }, []);
-
-  //   return { getLayoutedElements };
-  // };
 
   // const { getLayoutedElements } = useLayoutedElements();
 
