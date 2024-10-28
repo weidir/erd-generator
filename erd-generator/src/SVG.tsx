@@ -6,6 +6,8 @@ export const Markers = () => (
       position: "absolute",
       top: 0,
       left: 0,
+      width: 0,
+      height: 0,
     }}
   >
     <defs>
@@ -43,7 +45,7 @@ export const Markers = () => (
         orient="auto"
       >
         <line
-          x1="0"
+          x1="15"
           y1="25"
           x2="20"
           y2="25"
