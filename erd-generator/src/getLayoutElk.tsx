@@ -10,7 +10,7 @@ const elkDefaultOptions = {
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
   "elk.edgeRouting": "SPLINE",
   "elk.spacing.nodeNode": "80",
-  "elk.force.temperature": "0.0001",
+  "elk.force.temperature": "0.000001",
   // "org.eclipse.elk.portConstraints": "FIXED_ORDER",
   // "elk.layered.crossingMinimization.forceNodeModelOrder": "true",
   // "elk.layered.crossingMinimization.semiInteractive": "true",
