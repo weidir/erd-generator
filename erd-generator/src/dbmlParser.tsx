@@ -16,6 +16,7 @@ export async function parseDbml(dbmlString: string): Promise<any> {
     include_refs: true,
   };
   const dbmlObjectJSON = JSON.stringify(dbmlObject);
+  console.log("DBML Object JSON:", dbmlObjectJSON);
 
   try {
     const response = await fetch("http://localhost:3200/dbml_to_table_def", {
@@ -24,8 +25,16 @@ export async function parseDbml(dbmlString: string): Promise<any> {
       headers: {
         "Content-Type": "application/json",
         accept: "application/json",
+        "X-user-id": 1,
+        "X-activity-id": "erd-generator",
+        "X-service-id": 2,
       },
     });
+    if (!response.ok) {
+      throw new Error(
+        `HTTP error! Status: ${response.status}: ${response.body}: ${response.statusText}`
+      );
+    }
 
     // Calling the function to get the parsed data
     const parsedData = response.json();
