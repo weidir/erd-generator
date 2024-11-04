@@ -25,5 +25,4 @@ dist-ssr
 
 # Ignore python virtual env
 .venv
-**.py
 **.pyc
